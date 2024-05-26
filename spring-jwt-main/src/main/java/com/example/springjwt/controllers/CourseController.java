@@ -154,7 +154,8 @@ public ResponseEntity<?> updateCourse(@RequestBody Course course, @PathVariable 
             Files.write(filePath, fileBytes);
 // Enregistrer le nom du fichier dans l'objet Course
             course.setFileName(fileName);
-
+            course.setAverageRating(0);
+            course.setTotalRatings(0);
             //current user
             User currentUser = userRepository.findById(idUser).orElse(null);
             course.setTeacher(currentUser);
@@ -337,5 +338,35 @@ public ResponseEntity<?> updateCourse(@RequestBody Course course, @PathVariable 
     public void deleteCourse2(@PathVariable("idCourse")int idCourse){
         Course course = courseRepository.findById(idCourse).orElse(null);
         courseRepository.delete(course);
+    }
+
+    @GetMapping("/getNumberOfStudents/{courseId}")
+    public int getNumberOfStudents(@PathVariable("courseId") int courseId) {
+        return stepcourseRepository.countStudentsByCourseId(courseId);
+    }
+
+
+    @PutMapping("/updateEtatProgressCourse/{courseId}/{studentId}")
+    public void updateEtatProgressCourse(@PathVariable("courseId") int courseId ,@PathVariable("studentId") int studentId) {
+        System.out.println("heeeeeeeeeeeeeeere"+courseId+" ddd "+studentId);
+        Course course = courseRepository.findById(courseId).orElse(null);
+        User student = userRepository.findById(studentId).orElse(null);
+     Stepcourse stepcourse =   stepcourseRepository.findByCourseAndStudent(course , student);
+     stepcourse.setEtat(1);
+     stepcourseRepository.save(stepcourse);
+
+    }
+
+
+    @PostMapping("/addRating/{courseId}")
+    public ResponseEntity<?> addRating(@PathVariable int courseId, @RequestParam int rating) {
+        try {
+            Course updatedCourse = courseService.addRating(courseId, rating);
+            return ResponseEntity.ok(updatedCourse);
+        } catch (EntityNotFoundException ex) {
+            HashMap<String, String> message = new HashMap<>();
+            message.put("message", "Course not found for id: " + courseId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
     }
 }

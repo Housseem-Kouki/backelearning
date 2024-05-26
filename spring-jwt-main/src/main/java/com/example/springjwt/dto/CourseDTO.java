@@ -14,4 +14,9 @@ public class CourseDTO {
 	    private boolean courseIsPremium;
 	    private List<LessonDTO> lessons;
 	private List<UserDTO> students;
+
+
+	private double averageRating;
+	private int numberOfRatings;
+
 }

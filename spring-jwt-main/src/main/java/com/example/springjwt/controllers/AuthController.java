@@ -7,6 +7,7 @@ import com.example.springjwt.model.User;
 import com.example.springjwt.model.request.LoginReq;
 import com.example.springjwt.model.response.ErrorRes;
 import com.example.springjwt.model.response.LoginRes;
+import com.example.springjwt.repositories.IUserRepository;
 import com.example.springjwt.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/rest/auth")
 public class AuthController {
 
+    @Autowired
+    private IUserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     @Autowired
 	private UserService userService;
@@ -33,7 +36,11 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
 
     }
-
+    @GetMapping("/userrole/{email}")
+    public User getUserrole(@PathVariable("email") String email){
+        User user = userRepository.findByEmail(email);
+        return user;
+    }
     @ResponseBody
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody LoginReq loginReq)  {
@@ -63,6 +70,11 @@ public class AuthController {
     }
     @PostMapping(path = "/signin")
 	public ResponseEntity<?> addUser(@RequestBody UserDTO userDto) {
+        User existingUser = userRepository.findByEmail(userDto.getEmail());
+        if (existingUser != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+
+        }
 		try {
 			// Convert UserDTO to user entity
 			User user = UserConverter.toEntity(userDto);

@@ -2,6 +2,7 @@ package com.example.springjwt.controllers;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.springjwt.model.PasswordResetModel;
 import com.example.springjwt.repositories.IUserRepository;
@@ -32,6 +33,11 @@ public class UserController {
 	@GetMapping("/users")
 	public List<User> getUsers() {
 		return userService.getUsers();
+	}
+	@GetMapping("/userrole/{email}")
+	public User getUserrole(@PathVariable("email") String email){
+		User user = userRepository.findByEmail(email);
+		return user;
 	}
 
 	@GetMapping("/users/{userId}")
@@ -162,11 +168,7 @@ public class UserController {
 		
 	}*/
 
-	@GetMapping("/userrole/{email}")
-	public User getUserrole(@PathVariable("email") String email){
-		User user = userRepository.findByEmail(email);
-		return user;
-	}
+
 
 
 	@PutMapping("/users/{userId}/suspend")
@@ -193,6 +195,18 @@ public class UserController {
 		}
 	}
 
+
+
+
+	@GetMapping("/getAllInstructor")
+	public List<User> getAllInstructor(){
+		List<User> userList = userRepository.findAll();
+		// Filtrer les utilisateurs ayant le rôle égal à 2
+		List<User> instructors = userList.stream()
+				.filter(user -> user.getRole() == 2)
+				.collect(Collectors.toList());
+		return instructors;
+	}
 
 
 

@@ -39,8 +39,13 @@ public class SecurityConfig  {
 
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/rest/auth/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers("/rest/auth/login").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/rest/auth/register").permitAll()
+                .requestMatchers("/rest/course/getAllCourses").permitAll()
+                .requestMatchers("/rest/course/getCourseById/**").permitAll()
+                .requestMatchers("/rest/auth/signin/**").permitAll()
+                .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilterBefore(jwtAuthorizationFilter,UsernamePasswordAuthenticationFilter.class);
 

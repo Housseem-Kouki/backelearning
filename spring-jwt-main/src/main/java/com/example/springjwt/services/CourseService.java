@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.example.springjwt.model.*;
 import com.example.springjwt.repositories.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,13 @@ public class CourseService {
          }
          return courseSaved;
     }
+    public Course addRating(int courseId, int ratingValue) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
 
+        course.addRating(ratingValue);
+        return courseRepository.save(course);
+    }
     public boolean existsById(int courseId) {
         return courseRepository.existsById(courseId);
     }

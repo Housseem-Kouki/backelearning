@@ -18,6 +18,9 @@ public class CourseConverter {
 		dto.setCourseLevel(entity.getCourseLevel());
 		dto.setCourseIsPremium(entity.getCourseIsPremium());
 
+		dto.setAverageRating(entity.getAverageRating());  // Set average rating
+		dto.setNumberOfRatings(entity.getTotalRatings());  // Set number of ratings
+
 		List<LessonDTO> lessons = new ArrayList<>();
 		if (entity.getLessons() != null && !entity.getLessons().isEmpty()) {
 			for (Lesson lesson : entity.getLessons()) {
@@ -39,6 +42,10 @@ public class CourseConverter {
 		entity.setCourseCategory(dto.getCourseCategory());
 		entity.setCourseDescription(dto.getCourseDescription());
 		entity.setCourseDuration(dto.getCourseDuration());
+
+		entity.setAverageRating(dto.getAverageRating());  // Set average rating
+		entity.setTotalRatings(dto.getNumberOfRatings());  // Set number of ratings
+
 
 		List<Lesson> lessons = new ArrayList<>();
 		if (dto.getLessons() != null && !dto.getLessons().isEmpty()) {

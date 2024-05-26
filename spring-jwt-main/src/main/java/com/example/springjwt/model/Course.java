@@ -2,6 +2,7 @@ package com.example.springjwt.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,15 @@ public class Course {
 	private boolean courseIsPremium;
 	private String fileName;
 
+	@Nullable
+	@Column(name = "total_ratings", nullable = true)
+	private int totalRatings;
+
+
+	@Nullable
+	@Column(name = "average_rating" , nullable = true)
+	private double averageRating;
+
 	@JsonIgnore
 	@Lob
 	@Column(length = 100000)
@@ -49,4 +59,11 @@ public class Course {
 	@JoinColumn(name = "teacherId")
 	@JsonBackReference("teacher-course")
 	private User teacher;
+
+	public void addRating(int rating) {
+		double totalSum = this.averageRating * this.totalRatings;
+		this.totalRatings += 1;
+		totalSum += rating;
+		this.averageRating = totalSum / this.totalRatings;
+	}
 }
