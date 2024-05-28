@@ -49,10 +49,11 @@ public class AuthController {
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginReq.getEmail(), loginReq.getPassword()));
            */
         	if(userService.validateUser(loginReq.getEmail(), loginReq.getPassword())!=null) {
+                User user1 = userService.validateUser(loginReq.getEmail(), loginReq.getPassword());
         		String email = loginReq.getEmail();
                 User user = new User(email,"");
                 String token = jwtUtil.createToken(user);
-                LoginRes loginRes = new LoginRes(email,token);
+                LoginRes loginRes = new LoginRes(email,token,user1.isStatus());
                 return ResponseEntity.ok(loginRes);
         	}else {
         		ErrorRes errorResponse = new ErrorRes(HttpStatus.BAD_REQUEST,"Invalid username or password");
