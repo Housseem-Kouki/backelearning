@@ -1,15 +1,22 @@
 package com.example.springjwt.controllers;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.springjwt.model.Course;
 import com.example.springjwt.model.PasswordResetModel;
 import com.example.springjwt.repositories.IUserRepository;
 import com.example.springjwt.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.springjwt.dto.UserConverter;
@@ -18,6 +25,7 @@ import com.example.springjwt.model.User;
 import com.example.springjwt.services.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
@@ -25,6 +33,8 @@ import javax.ws.rs.core.Response;
 @RestController
 @RequestMapping("/rest/user")
 public class UserController {
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private IUserRepository userRepository;
 	@Autowired
@@ -51,6 +61,11 @@ public class UserController {
 			message.put("message", "User not found for id: " + userId);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
 		}
+	}
+
+	@GetMapping("/getUserById/{userId}")
+	public User getUserById2(@PathVariable int userId) {
+		return userRepository.findById(userId).orElse(null);
 	}
 
 	@PostMapping(path = "/users")
@@ -111,28 +126,28 @@ public class UserController {
 	}
 
 	@PostMapping("/password-reset")
-	public ResponseEntity<String> resetPassword(@RequestBody PasswordResetModel passwordResetModel, @QueryParam("token") String token) {
+	public ResponseEntity<Map<String, String>> resetPassword(@RequestBody PasswordResetModel passwordResetModel, @QueryParam("token") String token) {
+		Map<String, String> response = new HashMap<>();
 		if (passwordResetModel == null) {
-			// Gérer le cas où passwordResetModel est null
 			String errorMessage = "Le modèle de réinitialisation du mot de passe est null.";
 			System.err.println(errorMessage);
-			return ResponseEntity.badRequest().body(errorMessage);
+			response.put("message", errorMessage);
+			return ResponseEntity.badRequest().body(response);
 		} else {
-			// Le modèle n'est pas null, vous pouvez accéder à ses propriétés en toute sécurité
 			String newPassword = passwordResetModel.getNewPassword();
 			String confirmPassword = passwordResetModel.getConfirmPassword();
 
 			if (newPassword == null || confirmPassword == null) {
-				// Gérer le cas où l'un des champs de mot de passe est null
 				String errorMessage = "Les champs NewPassword ou ConfirmPassword sont null.";
 				System.err.println(errorMessage);
-				 return ResponseEntity.badRequest().body(errorMessage);
+				response.put("message", errorMessage);
+				return ResponseEntity.badRequest().body(response);
 			} else {
-				// Les champs NewPassword et ConfirmPassword sont non null
-				// Vous pouvez continuer avec la logique de réinitialisation du mot de passe
 				System.out.println(newPassword);
-				System.out.println("token envoyéééé : "+token);
-				return userService.resetPassword(token, newPassword, confirmPassword);
+				System.out.println("token envoyéééé : " + token);
+				String result = userService.resetPassword(token, newPassword, confirmPassword);
+				response.put("message", result);
+				return ResponseEntity.ok().body(response);
 			}
 		}
 	}
@@ -210,4 +225,48 @@ public class UserController {
 
 
 
+
+	@PutMapping("/changePassword")
+	public ResponseEntity<Map<String, String>> changePassword(@RequestParam int idUserconnected,
+												 @RequestParam String currentPassword,
+												 @RequestParam String newPassword,
+												 @RequestParam String confirmPassword) {
+		return userService.updatePasswor(idUserconnected,currentPassword,newPassword,confirmPassword);
+	}
+
+	@PutMapping("/updateUser")
+	public User updateUser(@RequestBody User user) {
+		User user1 = userRepository.findById((int) user.getUserId()).orElse(null);
+		user1.setBirthdate(user.getBirthdate());
+		user1.setCountry(user.getCountry());
+		user1.setLocation(user.getLocation());
+
+		user1.setFirstName(user.getFirstName());
+		user1.setLastName(user.getLastName());
+		user1.setEmail(user.getEmail());
+		user1.setProfession(user.getProfession());
+		user1.setPhoneNumber(user.getPhoneNumber());
+		return userRepository.save(user1);
+	}
+
+	@PutMapping(path = "/updateImageUser/{idUser}")
+	public void addCoursesFinal(@RequestParam("file") MultipartFile file,
+								  @PathVariable("idUser")int idUser) {
+		User user = userRepository.findById(idUser).orElse(null);
+		try {
+			//Course course = objectMapper.readValue(courseJson, Course.class);
+			user.setUserPhotoFile(file.getBytes());
+			String fileName = file.getOriginalFilename();
+			// Sauvegarder le fichier dans le dossier d'uploads avec un nom spécifique
+			byte[] fileBytes = file.getBytes();
+			Path filePath = Paths.get("src/main/resources/static/uploads/" + fileName);
+			Files.write(filePath, fileBytes);
+// Enregistrer le nom du fichier dans l'objet Course
+			user.setFileName(fileName);
+			// Sauvegarde du cours
+			 userRepository.save(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

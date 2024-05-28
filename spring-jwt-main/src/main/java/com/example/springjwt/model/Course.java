@@ -1,13 +1,13 @@
 package com.example.springjwt.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "courses")
-public class Course {
+public class Course implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,7 +57,7 @@ public class Course {
 
 	@ManyToOne
 	@JoinColumn(name = "teacherId")
-	@JsonBackReference("teacher-course")
+	@JsonIgnoreProperties("coursesAsTeacher")
 	private User teacher;
 
 	public void addRating(int rating) {

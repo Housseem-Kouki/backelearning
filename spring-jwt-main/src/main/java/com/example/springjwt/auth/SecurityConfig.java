@@ -25,6 +25,7 @@ public class SecurityConfig  {
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
 
     }
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, NoOpPasswordEncoder noOpPasswordEncoder)
             throws Exception {
@@ -45,6 +46,9 @@ public class SecurityConfig  {
                 .requestMatchers("/rest/course/getAllCourses").permitAll()
                 .requestMatchers("/rest/course/getCourseById/**").permitAll()
                 .requestMatchers("/rest/auth/signin/**").permitAll()
+                .requestMatchers("/rest/user/requestPasswordReset/**").permitAll()
+                .requestMatchers("/rest/user/linkpassword/**").permitAll()
+                .requestMatchers("/rest/user/password-reset/**").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilterBefore(jwtAuthorizationFilter,UsernamePasswordAuthenticationFilter.class);

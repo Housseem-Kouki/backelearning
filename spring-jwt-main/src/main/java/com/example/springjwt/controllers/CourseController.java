@@ -106,7 +106,7 @@ public ResponseEntity<?> updateCourse(@RequestBody Course course, @PathVariable 
 }
 
 
-    @DeleteMapping("/courses/{courseId}")
+    @DeleteMapping("/deleteCourse/{courseId}")
     public ResponseEntity<?> deleteCourse(@PathVariable int courseId) {
         if (courseService.existsById(courseId)) {
         	courseService.deleteCourse(courseId);
